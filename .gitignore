@@ -1,0 +1,8 @@
+.env
+*.tar.gz
+models/
+.rasa/
+__pycache__/
+*.pyc
+tracker.db
+.DS_Store

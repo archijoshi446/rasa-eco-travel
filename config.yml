@@ -1,0 +1,53 @@
+recipe: default.v1
+assistant_id: eco_travel_advisor
+
+language: en
+
+pipeline:
+  # Default pipeline: spaCy tokeniser + featurisers + DIETClassifier.
+  # This combination gives the best accuracy/latency trade-off on a
+  # CPU-hosted environment, keeping inference comfortably under 3s.
+  - name: SpacyNLP
+    model: "en_core_web_md"
+  - name: SpacyTokenizer
+  - name: SpacyFeaturizer
+  - name: RegexFeaturizer
+  - name: LexicalSyntacticFeaturizer
+  - name: CountVectorsFeaturizer
+  - name: CountVectorsFeaturizer
+    analyzer: char_wb
+    min_ngram: 1
+    max_ngram: 4
+  - name: DIETClassifier
+    epochs: 100
+    constrain_similarities: true
+  - name: EntitySynonymMapper
+  - name: ResponseSelector
+    epochs: 100
+  - name: FallbackClassifier
+    threshold: 0.6
+    ambiguity_threshold: 0.1
+
+  # OPTIONAL upgrade path (commented out): swap the block above for a
+  # transformer-based pipeline if latency budget allows.
+  # - name: HFTransformersNLP
+  #   model_name: "distilbert"
+  #   model_weights: "distilbert-base-uncased"
+  # - name: LanguageModelTokenizer
+  # - name: LanguageModelFeaturizer
+  # - name: DIETClassifier
+  #   epochs: 100
+
+policies:
+  - name: MemoizedPolicy
+  - name: RulePolicy
+    core_fallback_threshold: 0.4
+    core_fallback_action_name: "action_default_fallback"
+    enable_fallback_prediction: true
+  - name: UnexpecTEDIntentPolicy
+    max_history: 5
+    epochs: 100
+  - name: TEDPolicy
+    max_history: 8
+    epochs: 100
+    constrain_similarities: true

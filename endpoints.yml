@@ -1,0 +1,13 @@
+action_endpoint:
+  url: "http://action-server:5055/webhook"
+
+tracker_store:
+  type: SQL
+  dialect: "sqlite"
+  db: "tracker.db"
+
+# Uncomment for production with persistent context between restarts:
+# lock_store:
+#   type: redis
+#   url: redis
+#   port: 6379

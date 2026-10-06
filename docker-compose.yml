@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  rasa:
+    image: rasa/rasa:3.6.2-full
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./:/app
+    command: >
+      run --enable-api --cors "*" --debug
+    depends_on:
+      - action-server
+    env_file:
+      - .env
+    networks:
+      - eco-travel-net
+
+  action-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.actions
+    ports:
+      - "5055:5055"   # internal only in production — expose solely for local debugging
+    env_file:
+      - .env
+    networks:
+      - eco-travel-net
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - rasa
+    networks:
+      - eco-travel-net
+
+networks:
+  eco-travel-net:
+    driver: bridge

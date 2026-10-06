@@ -1,0 +1,149 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - bot_challenge
+  - plan_trip
+  - inform_destination
+  - inform_dates
+  - inform_budget
+  - inform_sustainability_preference
+  - ask_carbon_footprint
+  - ask_eco_hotels
+  - ask_green_transport
+  - ask_cultural_activities
+  - request_human_advisor
+  - out_of_scope
+  - nlu_fallback
+
+entities:
+  - destination
+  - origin
+  - travel_date
+  - budget
+  - sustainability_level
+  - transport_mode
+
+slots:
+  destination:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: destination
+  origin:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: origin
+  travel_dates:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: travel_date
+  budget:
+    type: float
+    mappings:
+      - type: from_entity
+        entity: budget
+  sustainability_level:
+    type: categorical
+    values:
+      - low
+      - medium
+      - high
+    mappings:
+      - type: from_entity
+        entity: sustainability_level
+  carbon_score:
+    type: float
+    mappings:
+      - type: custom
+  handover_required:
+    type: bool
+    initial_value: false
+    mappings:
+      - type: custom
+  requested_slot:
+    type: text
+    mappings:
+      - type: custom
+
+forms:
+  trip_intake_form:
+    required_slots:
+      - destination
+      - origin
+      - travel_dates
+      - budget
+      - sustainability_level
+
+responses:
+  utter_greet:
+    - text: "Hi, I'm your eco-travel advisor. I can help you plan a lower-carbon trip — where are you thinking of going?"
+
+  utter_goodbye:
+    - text: "Safe and sustainable travels! Come back anytime you're planning your next trip."
+
+  utter_iamabot:
+    - text: "I'm a conversational assistant built with Rasa to help plan environmentally responsible trips."
+
+  utter_ask_destination:
+    - text: "Which destination are you considering?"
+
+  utter_ask_origin:
+    - text: "And where will you be travelling from?"
+
+  utter_ask_travel_dates:
+    - text: "What dates are you planning to travel?"
+
+  utter_ask_budget:
+    - text: "What's your approximate budget for this trip (in your local currency)?"
+
+  utter_ask_sustainability_level:
+    - buttons:
+        - title: "Low priority"
+          payload: '/inform_sustainability_preference{{"sustainability_level":"low"}}'
+        - title: "Medium priority"
+          payload: '/inform_sustainability_preference{{"sustainability_level":"medium"}}'
+        - title: "High priority"
+          payload: '/inform_sustainability_preference{{"sustainability_level":"high"}}'
+      text: "How important is minimising your carbon footprint for this trip?"
+
+  utter_submit_trip_intake:
+    - text: "Thanks — let me look for low-carbon options between {origin} and {destination} within your budget."
+
+  utter_default_fallback:
+    - text: "I didn't quite catch that. Could you rephrase, or choose one of these options?"
+      buttons:
+        - title: "Plan a trip"
+          payload: "/plan_trip"
+        - title: "Talk to a human advisor"
+          payload: "/request_human_advisor"
+
+  utter_ask_rephrase:
+    - text: "Sorry, I'm still not sure what you mean. Could you try describing it differently, e.g. 'find eco hotels in Lisbon' or 'what is the carbon footprint of a flight to Rome'?"
+
+  utter_handover_notice:
+    - text: "This looks like it needs a specialist's judgement. I'm handing your conversation over to a human travel advisor along with everything you've told me so far — they'll be with you shortly."
+
+  utter_ask_anything_else:
+    - text: "Is there anything else I can help you plan?"
+
+  utter_out_of_scope:
+    - text: "That's outside what I can help with directly — I focus on sustainable trip planning. Would you like to continue with your itinerary, or speak to a human advisor?"
+
+actions:
+  - action_fetch_carbon_footprint
+  - action_fetch_eco_hotels
+  - action_fetch_green_transport
+  - action_rank_travel_options
+  - action_human_handover
+  - action_default_fallback
+  - action_session_start
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
